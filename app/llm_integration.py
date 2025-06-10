@@ -29,10 +29,10 @@ Generate a compelling LinkedIn post based on the PDF content provided, following
    - Include your perspective on why these insights matter to your professional network
 
 4. ATTRIBUTION & FORMATTING:
-   - Use 1-2 emojis maximum, placed strategically (not in succession)
+   - Use 1-3 emojis maximum, placed strategically (not in succession)
    - At the end of the post, include a clear attribution line with authors and publication date
-   - Follow the attribution with these hashtags: #datascience #llm #ai #python
-   - Format example: "Based on work by [Authors] ([Publication Date]) #datascience #llm #ai #python"
+   - Follow the attribution with these hashtag related to the content; always include #llm
+   - Format example: "Based on work by [Authors] ([Publication Date]) #llm #sports #innovation"
    - DO NOT include character counts, introductory phrases, or any meta-commentary
    - DO NOT present as a formal summary or book report - write as a professional sharing valuable insights
 
