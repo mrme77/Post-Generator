@@ -65,10 +65,8 @@ You can modify the following aspects of the application:
 In `llm_integration.py`, you can change the model by modifying:
 
 
-Other options include:
-- `openrouter/openai/gpt-4-turbo`
-- `openrouter/anthropic/claude-3-opus`
-- `openrouter/meta-llama/llama-3-70b-instruct`
+Other model options can be found at:
+`https://openrouter.ai/models`
 
 ### Adjusting Post Generation Guidelines
 
@@ -83,9 +81,9 @@ Modify the `instruction` variable in `llm_integration.py` to change the post gen
 ## 🛠 Future implementation
 
 1. **Adding authentication** to control access to the application
-2. **Integrating with LinkedIn API** to post directly to LinkedIn
+2. **Integrating with Social Media API** to post directly to platform
 3. **Adding support for more document types** (like Word, PowerPoint)
-4. **Implementing a save/history feature** to store generated posts
+4. **Augnmenting the save/history feature** to store generated posts on cloud provider
 
 ## 📄 License
 
