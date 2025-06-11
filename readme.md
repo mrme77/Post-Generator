@@ -55,6 +55,19 @@ The application will start on a local server, typically at http://127.0.0.1:7860
 
 ## 📚 Project Structure
 
+pdf-tosocialmedia-app/
+├── app/               
+│   └── main.py               # Gradio UI + routing 
+│   └── llm_integration.py    # LLM call logic (e.g., OpenRouter/Gemma)
+│   └── llm_integration.py    # LLM call logic (e.g., OpenRouter/Gemma)      
+│   └── pdf_processing.py     # PDF text extraction logic
+│   └──export_handler.py      # TXT export handler
+│   └──analytics.py           # Local logging (with fallback options)
+├── .env                          # API keys (never upload to public repos)
+├── requirements.txt              # All dependencies
+├── README.md                     # Project documentation
+├── analytics_logs/               # Local logs (ephemeral on Spaces)
+│   └── 2025-06-11.jsonl          # Sample log file (one per day)
 
 ## ⚙️ Configuration
 
