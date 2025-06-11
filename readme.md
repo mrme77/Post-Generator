@@ -1,17 +1,17 @@
-# PDF to LinkedIn Post Generator
+# PDF to Social Media Post Generator
 
 ![GitHub](https://img.shields.io/badge/license-MIT-blue)
 
-A Gradio application that transforms PDF documents into professionally crafted LinkedIn posts using AI.
+A Gradio application that transforms PDF documents into professionally crafted LinkedIn posts using Gen AI.
 
 ## 📝 Overview
 
-This tool allows users to upload a PDF document (such as a research paper, article, or report) and automatically generates a LinkedIn-ready post summarizing the content. The application leverages Claude 3 Sonnet through OpenRouter to create engaging, professional posts that maintain fidelity to the original content.
+This tool allows users to upload a PDF document (such as a research paper, article, or report) and automatically generates a LinkedIn-ready post summarizing the content. The application leverages `meta-llama/llama-3.3-8b-instruct:free` through OpenRouter to create engaging, professional posts that maintain fidelity to the original content.
 
 ## ✨ Features
 
 - **PDF Text Extraction**: Automatically extracts text content from uploaded PDF files
-- **AI-Powered Summarization**: Uses Claude 3 Sonnet to generate professional LinkedIn posts
+- **AI-Powered Summarization**: Uses LLM models to generate professional LinkedIn posts
 - **Relevance Verification**: Ensures the generated post maintains key elements from the source material
 - **Format Optimization**: Produces clean post formatting ready for LinkedIn
 - **Hashtag Management**: Automatically includes relevant hashtags for better visibility
@@ -80,9 +80,7 @@ Modify the `instruction` variable in `llm_integration.py` to change the post gen
 - Your OpenRouter API key is stored in the `.env` file and is not committed to version control
 - No PDF content or generated posts are stored by the application
 
-## 🛠 Customization
-
-You can extend this project by:
+## 🛠 Future implementation
 
 1. **Adding authentication** to control access to the application
 2. **Integrating with LinkedIn API** to post directly to LinkedIn
