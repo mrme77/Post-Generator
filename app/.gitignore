@@ -77,3 +77,4 @@ flagged/
 
 # Local configuration
 config.local.yaml
+.gradio/
