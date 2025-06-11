@@ -2,11 +2,11 @@
 
 ![GitHub](https://img.shields.io/badge/license-MIT-blue)
 
-A Gradio application that transforms PDF documents into professionally crafted LinkedIn posts using Gen AI.
+A Gradio application that transforms PDF documents into professionally crafted social media posts using Gen AI.
 
 ## 📝 Overview
 
-This tool allows users to upload a PDF document (such as a research paper, article, or report) and automatically generates a LinkedIn-ready post summarizing the content. The application leverages `meta-llama/llama-3.3-8b-instruct:free` through OpenRouter to create engaging, professional posts that maintain fidelity to the original content.
+This tool allows users to upload a PDF document (such as a research paper, article, or report) and automatically generates a socialmedia-ready post summarizing the content. The application leverages `meta-llama/llama-3.3-8b-instruct:free` through OpenRouter to create engaging, professional posts that maintain fidelity to the original content.
 
 ## ✨ Features
 
