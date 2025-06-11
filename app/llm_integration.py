@@ -1,14 +1,12 @@
-from litellm import completion
+# llm_integration.py
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Instruction template for the LLM
-instruction = """
-Generate a compelling LinkedIn post based on the PDF content provided, following these guidelines:
+INSTRUCTION_TEMPLATE = """
+Generate a compelling LinkedIn post in a {tone} tone based on the PDF content provided, following these guidelines:
 
 1. STYLE & TONE:
    - Write in first-person perspective as someone who has personally read and been impacted by the document
@@ -37,68 +35,34 @@ Generate a compelling LinkedIn post based on the PDF content provided, following
    - DO NOT present as a formal summary or book report - write as a professional sharing valuable insights
 
 The final post should read as if a thoughtful professional read something interesting and wanted to share their genuine takeaways with their network, while properly crediting the original authors.
-
 """
 
-def generate_linkedin_post(pdf_content):
-    """
-    Generates a LinkedIn post based on the extracted PDF content using LiteLLM with OpenRouter.
-    
-    Args:
-        pdf_content (str): The extracted text content from the PDF.
-    
-    Returns:
-        str: The generated LinkedIn post.
-    """
-    # Check if API key is set
-    openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-    if not openrouter_api_key:
+def generate_linkedin_post(pdf_content: str, tone: str = "Professional") -> str:
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
         raise ValueError("OPENROUTER_API_KEY environment variable is not set")
-    
-    # Prepare messages for the LLM
-    # messages = [
-    #     {"role": "system", "content": instruction},
-    #     {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
-    # ]
-    
-    # Call the OpenRouter API via LiteLLM
-    # You can choose different models from OpenRouter by changing the model parameter
-    # See https://openrouter.ai/models for available models
-    try:
-        # response = completion(
-        #     #model="openrouter/anthropic/claude-3-sonnet-20240229",  # You can change this to any model available on OpenRouter
-        #     model ="meta-llama/llama-3.3-8b-instruct:free",
-        #     messages=messages,
-        #     temperature=0.7,
-        #     max_tokens=1000
-        # )
-       
 
+    try:
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key="<OPENROUTER_API_KEY>",
+            api_key=api_key,
         )
 
-        completion = client.chat.completions.create(
-        extra_headers={"Authorization": f"Bearer {openrouter_api_key}"},
-        extra_body={},
-        model="meta-llama/llama-3.3-8b-instruct:free",
-        messages = [
-        {"role": "system", "content": instruction},
-        {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
-    ],
-        temperature=0.7,
-        max_tokens=1000,
-        stop=None,
-        top_p=0.85,
-        stream=False
-)
+        instruction = INSTRUCTION_TEMPLATE.format(tone=tone)
 
-        
-        # Extract the generated LinkedIn post from the response
-        linkedin_post = completion.choices[0].message.content.strip()
-        #linkedin_post = response.choices[0].message.content
-        return linkedin_post
-    
+        completion = client.chat.completions.create(
+            model="google/gemma-3-27b-it:free",
+            messages=[
+                {"role": "system", "content": instruction},
+                {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
+            ],
+            temperature=0.7,
+            max_tokens=2000,
+            top_p=0.85,
+            stream=False,
+        )
+
+        return completion.choices[0].message.content.strip()
+
     except Exception as e:
         return f"Error generating LinkedIn post: {str(e)}"
