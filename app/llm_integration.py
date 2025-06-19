@@ -1,7 +1,8 @@
+# llm_integration.py
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-
+import sys
 load_dotenv()
 
 INSTRUCTION_TEMPLATE = """
@@ -47,25 +48,27 @@ def generate_linkedin_post(pdf_content: str, tone: str = "Professional", retry_n
             api_key=api_key,
         )
 
-        variation = ""
-        if retry_num > 0:
-            variation = f"\nThis is attempt #{retry_num + 1}. Please make it sound noticeably different from earlier versions."
+        instruction = INSTRUCTION_TEMPLATE.format(tone=tone)
+        temperature = 0.7 + 0.1 * retry_num  # Add variability on retries
 
-        instruction = INSTRUCTION_TEMPLATE.format(tone=tone) + variation
-
-        completion = client.chat.completions.create(
-            model="google/gemma-3-27b-it:free",
+        response = client.chat.completions.create(
+            #model="google/gemma-3-27b-it:free"
+            model ="meta-llama/llama-3.3-8b-instruct:free",
             messages=[
                 {"role": "system", "content": instruction},
                 {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
             ],
-            temperature=0.7 + 0.1 * retry_num,  # increase randomness slightly on retries
+            temperature=temperature,
             max_tokens=2000,
             top_p=0.85,
             stream=False,
         )
-
-        return completion.choices[0].message.content.strip()
+        print(f"Response: {response}")
+        
+        if response and hasattr(response, "choices") and response.choices:
+            return response.choices[0].message.content.strip()
+        else:
+            raise RuntimeError("No content returned by the language model.")
 
     except Exception as e:
-        return f"Error generating LinkedIn post: {str(e)}"
+        return f"Error generating Social Media post: {str(e)}"
