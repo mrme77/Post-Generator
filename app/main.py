@@ -1,11 +1,11 @@
 # main.py
-import gradio as gr
 import os
+import gradio as gr
 from dotenv import load_dotenv
 from pdf_processing import extract_pdf_content
 from llm_integration import generate_linkedin_post
 from export_handler import export_to_txt
-from analytics import log_analytics
+from analytics import log_analytics, is_too_similar
 
 load_dotenv()
 
@@ -17,9 +17,14 @@ def process_pdf(file, tone, version):
     if content.startswith("Error"):
         return content, "Character count: 0"
 
-    post = generate_linkedin_post(content, tone)
-    log_analytics("generation", {"tone": tone, "version": version, "length": len(post)})
-    return post, f"Character count: {len(post)}"
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        post = generate_linkedin_post(content, tone, retry_num=attempt)
+        if not is_too_similar(post):
+            log_analytics("generation", {"tone": tone, "version": version, "length": len(post)}, content=post)
+            return post, f"Character count: {len(post)}"
+
+    return "⚠️ Could not generate a unique post after 3 tries. Try changing the tone or the document.", "Character count: 0"
 
 def export_post(text):
     filename = export_to_txt(text)
@@ -32,10 +37,18 @@ with gr.Blocks(title="PDF to Social Media Post Generator", css=".blue-button {ba
     with gr.Row():
         with gr.Column():
             pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-            tone_dropdown = gr.Dropdown(label="Select Tone", choices=["Professional", "Mario Bros Style", "Insightful", "Promotional"], value="Professional")
-            
-            version_dropdown = gr.Dropdown(label="Select Version", choices=["v1-Standard structure and tone", "v2-Experimental with richer sentence variety and longer posts"], value="v1-Standard structure and tone")
-            
+            tone_dropdown = gr.Dropdown(
+                label="Select Tone",
+                choices=["Professional", "Mario Bros Style", "Insightful", "Promotional"],
+                value="Professional"
+            )
+
+            version_dropdown = gr.Dropdown(
+                label="Select Version",
+                choices=["v1-Standard structure and tone", "v2-Experimental with richer sentence variety and longer posts"],
+                value="v1-Standard structure and tone"
+            )
+
             generate_button = gr.Button("Generate Social Media Post", elem_classes="blue-button")
             export_button = gr.Button("Export as TXT")
 

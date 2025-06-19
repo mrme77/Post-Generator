@@ -1,4 +1,3 @@
-# llm_integration.py
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -37,7 +36,7 @@ Generate a compelling LinkedIn post in a {tone} tone based on the PDF content pr
 The final post should read as if a thoughtful professional read something interesting and wanted to share their genuine takeaways with their network, while properly crediting the original authors.
 """
 
-def generate_linkedin_post(pdf_content: str, tone: str = "Professional") -> str:
+def generate_linkedin_post(pdf_content: str, tone: str = "Professional", retry_num: int = 0) -> str:
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         raise ValueError("OPENROUTER_API_KEY environment variable is not set")
@@ -48,7 +47,11 @@ def generate_linkedin_post(pdf_content: str, tone: str = "Professional") -> str:
             api_key=api_key,
         )
 
-        instruction = INSTRUCTION_TEMPLATE.format(tone=tone)
+        variation = ""
+        if retry_num > 0:
+            variation = f"\nThis is attempt #{retry_num + 1}. Please make it sound noticeably different from earlier versions."
+
+        instruction = INSTRUCTION_TEMPLATE.format(tone=tone) + variation
 
         completion = client.chat.completions.create(
             model="google/gemma-3-27b-it:free",
@@ -56,7 +59,7 @@ def generate_linkedin_post(pdf_content: str, tone: str = "Professional") -> str:
                 {"role": "system", "content": instruction},
                 {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
             ],
-            temperature=0.7,
+            temperature=0.7 + 0.1 * retry_num,  # increase randomness slightly on retries
             max_tokens=2000,
             top_p=0.85,
             stream=False,
