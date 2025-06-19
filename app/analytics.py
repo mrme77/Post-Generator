@@ -2,14 +2,26 @@ import json
 from datetime import datetime
 from difflib import SequenceMatcher
 from google.cloud import storage
-from io import BytesIO
+from google.oauth2 import service_account
+import os
 
 # CONFIG
-BUCKET_NAME = "post_generator1"  # <-- replace with your actual GCS bucket name
-LOG_DIR = "analytics_logs"        # folder within the bucket
+BUCKET_NAME = "post_generator1"
+LOG_DIR = "analytics_logs"
 MAX_HISTORY = 10
 
-client = storage.Client()
+# Load credentials if GOOGLE_APPLICATION_CREDENTIALS contains JSON content
+gcp_creds_env = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+
+if gcp_creds_env and gcp_creds_env.strip().startswith('{'):
+    # It's raw JSON content from Hugging Face secret or env var
+    creds_dict = json.loads(gcp_creds_env)
+    credentials = service_account.Credentials.from_service_account_info(creds_dict)
+    client = storage.Client(credentials=credentials, project=creds_dict.get("project_id"))
+else:
+    # Fall back to default method (e.g. GOOGLE_APPLICATION_CREDENTIALS as a file path or local login)
+    client = storage.Client()
+
 bucket = client.bucket(BUCKET_NAME)
 
 def log_analytics(event_type: str, metadata: dict, content: str = None):
