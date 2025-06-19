@@ -8,6 +8,23 @@ from analytics import log_analytics, is_too_similar
 
 load_dotenv()
 
+# def process_pdf(file, tone, version):
+#     if file is None:
+#         return "Please upload a PDF file.", "Character count: 0", gr.update(visible=False), gr.update(visible=False)
+
+#     content = extract_pdf_content(file)
+#     if content.startswith("Error"):
+#         return content, "Character count: 0", gr.update(visible=False), gr.update(visible=False)
+
+#     max_attempts = 3
+#     for attempt in range(max_attempts):
+#         post = generate_linkedin_post(content, tone, retry_num=attempt)
+#         if not is_too_similar(post):
+#             log_analytics("generation", {"tone": tone, "version": version, "length": len(post)}, content=post)
+#             return post, f"Character count: {len(post)}", gr.update(visible=True), gr.update(visible=False)
+
+#     return "⚠️ Could not generate a unique post after 3 tries. Try changing the tone or the document.", "Character count: 0", gr.update(visible=False), gr.update(visible=False)
+
 def process_pdf(file, tone, version):
     if file is None:
         return "Please upload a PDF file.", "Character count: 0", gr.update(visible=False), gr.update(visible=False)
@@ -16,14 +33,17 @@ def process_pdf(file, tone, version):
     if content.startswith("Error"):
         return content, "Character count: 0", gr.update(visible=False), gr.update(visible=False)
 
-    max_attempts = 3
+    max_attempts = 5
+    similarity_threshold = 0.7
+
     for attempt in range(max_attempts):
         post = generate_linkedin_post(content, tone, retry_num=attempt)
-        if not is_too_similar(post):
+        # Allow first post regardless of similarity
+        if attempt == 0 or not is_too_similar(post, threshold=similarity_threshold):
             log_analytics("generation", {"tone": tone, "version": version, "length": len(post)}, content=post)
             return post, f"Character count: {len(post)}", gr.update(visible=True), gr.update(visible=False)
 
-    return "⚠️ Could not generate a unique post after 3 tries. Try changing the tone or the document.", "Character count: 0", gr.update(visible=False), gr.update(visible=False)
+    return "⚠️ Could not generate a unique post after multiple tries. Try changing the tone or the document.", "Character count: 0", gr.update(visible=False), gr.update(visible=False)
 
 def submit_feedback(post, sentiment, has_feedback):
     if has_feedback:
@@ -43,7 +63,7 @@ with gr.Blocks(title="PDF to Social Media Post Generator", css=".blue-button {ba
     gr.Markdown("Upload a PDF document, choose tone and version, and generate a Social Media post.")
     gr.Markdown(
         "⚠️ **Important:** Uploaded PDFs will be scanned for sensitive data (names, emails, phone numbers, etc.) "
-        "before being sent to the AI. We do not store any personal information."
+        "before being sent to the LLM model. We do not store any personal information."
     )
 
     with gr.Row():

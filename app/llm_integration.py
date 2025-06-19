@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from openai import OpenAI
 from presidio_analyzer import AnalyzerEngine
@@ -40,13 +41,28 @@ The final post should read as if a thoughtful professional read something intere
 # Initialize the Presidio PII Analyzer
 analyzer = AnalyzerEngine()
 
+# Define which PII entities to check for
+PII_ENTITIES_TO_CHECK = [
+    "EMAIL_ADDRESS",
+    "PHONE_NUMBER",
+    "CREDIT_CARD",
+    "US_SSN"
+]
+
+MIN_CONFIDENCE = 0.8  # Minimum confidence threshold for detected entities
+
 def contains_pii(text: str) -> bool:
     """
-    Analyze the text for presence of PII.
+    Analyze the text for presence of specified PII entities above a confidence threshold.
     Returns True if any PII entities are found, False otherwise.
     """
-    results = analyzer.analyze(text=text, entities=None, language='en')
-    return len(results) > 0
+    results = analyzer.analyze(text=text, entities=PII_ENTITIES_TO_CHECK, language='en')
+    high_confidence_results = [r for r in results if r.score >= MIN_CONFIDENCE]
+    if high_confidence_results:
+        # Debug: print detected PII entities with their type, snippet, and confidence score
+        print("Detected PII:", [(r.entity_type, text[r.start:r.end], r.score) for r in high_confidence_results])
+        return True
+    return False
 
 def generate_linkedin_post(pdf_content: str, tone: str = "Professional", retry_num: int = 0) -> str:
     api_key = os.getenv("OPENROUTER_API_KEY")
@@ -80,7 +96,7 @@ def generate_linkedin_post(pdf_content: str, tone: str = "Professional", retry_n
             top_p=0.85,
             stream=False,
         )
-        
+
         if response and hasattr(response, "choices") and response.choices:
             return response.choices[0].message.content.strip()
         else:

@@ -23,7 +23,6 @@ else:
     client = storage.Client()
 
 bucket = client.bucket(BUCKET_NAME)
-
 def log_analytics(event_type: str, metadata: dict, content: str = None):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     entry = {
@@ -34,16 +33,14 @@ def log_analytics(event_type: str, metadata: dict, content: str = None):
     if content:
         entry["content"] = content
 
-    log_filename = f"{LOG_DIR}/{datetime.now().strftime('%Y-%m-%d')}.jsonl"
+    # Create unique filename per event: analytics_logs/YYYY-MM-DD/HH-MM-SS_event.jsonl
+    date_folder = datetime.now().strftime('%Y-%m-%d')
+    time_stamp = datetime.now().strftime('%H-%M-%S-%f')[:-3]  # Include milliseconds
+    log_filename = f"{LOG_DIR}/{date_folder}/{time_stamp}_{event_type}.jsonl"
+
     blob = bucket.blob(log_filename)
+    blob.upload_from_string(json.dumps(entry) + "\n", content_type="application/jsonl")
 
-    try:
-        existing_data = blob.download_as_text()
-    except Exception:
-        existing_data = ""
-
-    updated_data = existing_data + json.dumps(entry) + "\n"
-    blob.upload_from_string(updated_data, content_type="application/jsonl")
 
 def get_recent_generated_posts() -> list:
     posts = []
