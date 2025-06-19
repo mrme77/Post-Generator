@@ -1,108 +1,155 @@
-# PDF to Social Media Post Generator
+# 📄 PDF to Social Media Post Generator
 
 ![GitHub](https://img.shields.io/badge/license-MIT-blue)
 
-A Gradio application that transforms PDF documents into professionally crafted social media posts using Gen AI.
+A Gradio application that transforms PDF documents into professionally crafted social media posts using GenAI, with secure analytics logging to Google Cloud Storage — works seamlessly both locally and on Hugging Face Spaces.
+
+---
 
 ## 📝 Overview
 
-This tool allows users to upload a PDF document (such as a research paper, article, or report) and automatically generates a socialmedia-ready post summarizing the content. The application leverages `meta-llama/llama-3.3-8b-instruct:free` through OpenRouter to create engaging, professional posts that maintain fidelity to the original content.
+This tool allows users to upload a PDF (research paper, article, or report) and automatically generates a LinkedIn-ready post that summarizes the content. The app uses `meta-llama/llama-3.3-8b-instruct:free` via OpenRouter to produce compelling, professional summaries, while securely logging usage events to a Google Cloud bucket.
+
+---
 
 ## ✨ Features
 
-- **PDF Text Extraction**: Automatically extracts text content from uploaded PDF files
-- **AI-Powered Summarization**: Uses LLM models to generate professional LinkedIn posts
-- **Relevance Verification**: Ensures the generated post maintains key elements from the source material
-- **Format Optimization**: Produces clean post formatting ready for LinkedIn
-- **Hashtag Management**: Automatically includes relevant hashtags for better visibility
-- **Simple User Interface**: Clean, intuitive Gradio interface for easy interaction
+- 📄 **PDF Text Extraction**: Extracts text from uploaded PDFs using `PyPDF2`
+- 🤖 **AI-Powered Summarization**: Uses GenAI models for post generation
+- ✅ **Relevance Assurance**: Keeps key concepts from the original document
+- 🎯 **Format Optimization**: Produces clean, ready-to-publish LinkedIn text
+- 🏷️ **Hashtag Management**: Automatically adds relevant hashtags
+- 🌐 **Cloud-Based Logging**: Stores usage logs in a GCS bucket (Vertex AI compatible)
+- 🧑‍💻 **Works Locally and in Hugging Face Spaces**
+
+---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### ✅ Prerequisites
 
 - Python 3.8 or higher
-- An OpenRouter API key (get one at [openrouter.ai](https://openrouter.ai))
+- OpenRouter API key → [https://openrouter.ai](https://openrouter.ai)
+- (Optional for local use) GCP Service Account JSON key for logging
 
-### Installation
+---
 
-1. **Clone the repository**
+### 🔧 Installation
 
+```bash
+# 1. Clone the repository
+git clone https://huggingface.co/spaces/your-username/post_generator
+cd post_generator
 
-2. **Create a virtual environment** (recommended)
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate
 
+# 3. Install dependencies
+pip install -r requirements.txt
+```
 
-3. **Install dependencies**
-```bash pip install -r requirements.txt```
+---
 
+### 🔐 API and Credential Setup
 
-4. **Set up your API key**
-   
-   Create a `.env` file in the root directory and add:
+#### 📌 1. Create a `.env` file:
 
-### Running the Application
+```ini
+OPENROUTER_API_KEY=your-openrouter-key
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/your/gcp_key.json
+```
 
+> On Hugging Face Spaces, you don’t need the `.env` file — add secrets via **Settings > Secrets**.
 
-The application will start on a local server, typically at http://127.0.0.1:7860.
+#### 📌 2. Hugging Face Secret Configuration:
 
-## 💻 How It Works
+| Key                         | Value                         |
+|----------------------------|-------------------------------|
+| `OPENROUTER_API_KEY`       | Your OpenRouter API key       |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Paste raw JSON from your GCP key |
 
-1. **Upload a PDF**: User uploads a PDF document through the Gradio interface
-2. **Text Extraction**: The app extracts text content from the PDF using PyPDF2
-3. **Content Generation**: The extracted text is sent to Claude 3 Sonnet through OpenRouter
-4. **Post-Processing**: The generated post is cleaned and verified for relevance
-5. **Result**: A LinkedIn-ready post is displayed in the interface, ready to be copied
+---
 
-## 📚 Project Structure
+### ▶️ Running the App
+
+#### Locally:
+```bash
+python app/main.py
+```
+Your app will be available at: [http://127.0.0.1:7860](http://127.0.0.1:7860)
+
+#### Hugging Face Spaces:
+Just push the code — it auto-deploys!
+
+---
+
+## 💡 How It Works
+
+1. **Upload PDF**: User selects a file
+2. **Text Extraction**: PDF parsed using `PyPDF2`
+3. **Post Generation**: Text sent to LLM via OpenRouter
+4. **Cloud Logging**: Logs are pushed to your GCS bucket (if credentials exist)
+5. **Display Result**: The LinkedIn post appears, ready to copy
+
+---
+
+## 📁 Project Structure
+
 ```
 pdf-to-socialmedia-app/
 ├── app/
 │   ├── main.py              # Gradio UI + routing
-│   ├── llm_integration.py   # LLM call logic (e.g., OpenRouter/Gemma)
-│   ├── pdf_processing.py    # PDF text extraction logic
-│   ├── export_handler.py    # TXT export handler
-│   └── analytics.py         # Local logging (with fallback options)
-├── .env                     # API keys (never upload to public repos)
-├── requirements.txt         # All dependencies
-├── README.md                # Project documentation
-├── analytics_logs/          # Local logs (ephemeral on Spaces)
-│   └── 2025-06-11.jsonl     # Sample log file (one per day)
+│   ├── llm_integration.py   # LLM logic via OpenRouter
+│   ├── pdf_processing.py    # PDF extraction
+│   ├── export_handler.py    # Text export logic
+│   └── analytics.py         # Cloud/local logging abstraction
+├── .env                     # (local only) API keys
+├── requirements.txt         # Python dependencies
+├── README.md                # This file
+├── analytics_logs/          # Local logs (if GCS is not used)
 ```
 
-## ⚙️ Configuration
+---
 
-You can modify the following aspects of the application:
+## ⚙️ Configuration Options
 
-### Changing the AI Model
+### Change the LLM Model
+Edit `llm_integration.py`:
+```python
+model = "meta-llama/llama-3.3-8b-instruct:free"
+```
+Explore more models at: [https://openrouter.ai/models](https://openrouter.ai/models)
 
-In `llm_integration.py`, you can change the model by modifying:
+### Customize Generation Style
+Edit the `instruction` prompt in `llm_integration.py` to change tone, length, or format of the post.
 
-
-Other model options can be found at:
-`https://openrouter.ai/models`
-
-### Adjusting Post Generation Guidelines
-
-Modify the `instruction` variable in `llm_integration.py` to change the post generation guidelines.
+---
 
 ## 🔒 Security Notes
 
-- The application processes PDF files locally and only sends the extracted text to OpenRouter
-- Your OpenRouter API key is stored in the `.env` file and is not committed to version control
-- No PDF content or generated posts are stored by the application
+- The app never stores your PDFs or generated text beyond session memory.
+- OpenRouter keys and GCP credentials are stored in `.env` (local) or Hugging Face Secrets (hosted).
+- GCS logs are append-only and used solely for usage analytics.
 
-## 🛠 Future implementation
+---
 
-1. **Adding authentication** to control access to the application
-2. **Integrating with Social Media API** to post directly to platform
-3. **Adding support for more document types** (like Word, PowerPoint)
-4. **Augnmenting the save/history feature** to store generated posts on cloud provider
+## 🛠️ Future Features
+
+- 🔐 Authentication (e.g., for private use or teams)
+- 🔄 Direct Social Media Posting (LinkedIn API integration)
+- 📑 Support for DOCX, PPTX files
+- 💾 Enhanced cloud storage of generated posts
+
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License — see `LICENSE` file for details.
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to open an issue or submit a pull request.
-
+We welcome PRs, suggestions, and feedback!  
+Open an issue or fork and submit a pull request.
