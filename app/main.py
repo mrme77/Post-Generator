@@ -32,19 +32,19 @@ def submit_feedback(post, sentiment, has_feedback):
     if not post or post.startswith("Please upload") or post.startswith("Error"):
         return gr.update(visible=True, value="⚠️ No valid post to rate. Generate a post first!"), gr.update(visible=True), False
     
-    # Log the feedback
     log_analytics("feedback", {"sentiment": sentiment}, content=post)
-    
-    feedback_message = "Thank you for your feedback! 😊" if sentiment == "positive" else "Thank you for your feedback! We'll work to improve. 🙏"
-    # Hide the feedback buttons and show the thank you message
-    return gr.update(visible=True, value=feedback_message), gr.update(visible=False), True
+    message = "Thank you for your feedback! 😊" if sentiment == "positive" else "Thank you for your feedback! We'll work to improve. 🙏"
+    return gr.update(visible=True, value=message), gr.update(visible=False), True
 
 with gr.Blocks(title="PDF to Social Media Post Generator", css=".blue-button {background-color: #0A66C2; color: white;}") as app:
-    # Create a state variable to track if feedback has been given
     has_given_feedback = gr.State(False)
-    
+
     gr.Markdown("# 📄 PDF to Social Media Post Generator")
     gr.Markdown("Upload a PDF document, choose tone and version, and generate a Social Media post.")
+    gr.Markdown(
+        "⚠️ **Important:** Uploaded PDFs will be scanned for sensitive data (names, emails, phone numbers, etc.) "
+        "before being sent to the AI. We do not store any personal information."
+    )
 
     with gr.Row():
         with gr.Column():
@@ -54,48 +54,48 @@ with gr.Blocks(title="PDF to Social Media Post Generator", css=".blue-button {ba
                 choices=["Professional", "Mario Bros Style", "Insightful", "Promotional"],
                 value="Professional"
             )
-
             version_dropdown = gr.Dropdown(
                 label="Select Version",
-                choices=["v1-Standard structure and tone", "v2-Experimental with richer sentence variety and longer posts"],
+                choices=[
+                    "v1-Standard structure and tone",
+                    "v2-Experimental with richer sentence variety and longer posts"
+                ],
                 value="v1-Standard structure and tone"
             )
-
             generate_button = gr.Button("Generate Social Media Post", elem_classes="blue-button")
 
         with gr.Column():
             output_box = gr.Textbox(label="Generated Social Media Post", lines=15, show_copy_button=True)
             char_count = gr.Markdown("Character count: 0")
-            
-            # Add feedback components
+
             with gr.Row(visible=False) as feedback_row:
                 gr.Markdown("### Was this post helpful?")
                 positive_btn = gr.Button("👍 Yes", variant="primary", size="sm")
                 negative_btn = gr.Button("👎 No", variant="secondary", size="sm")
+
             feedback_status = gr.Markdown(visible=False)
 
+            # Hidden signals for feedback logic
+            positive_signal = gr.Textbox(value="positive", visible=False)
+            negative_signal = gr.Textbox(value="negative", visible=False)
+
     generate_button.click(
-        fn=process_pdf, 
-        inputs=[pdf_input, tone_dropdown, version_dropdown], 
+        fn=process_pdf,
+        inputs=[pdf_input, tone_dropdown, version_dropdown],
         outputs=[output_box, char_count, feedback_row, feedback_status]
     )
-    
-    # Reset feedback status when generating a new post
-    def reset_feedback():
-        return False
-    
-    generate_button.click(fn=reset_feedback, outputs=has_given_feedback)
-    
-    # Add click handlers for feedback buttons
+
+    generate_button.click(fn=lambda: False, outputs=has_given_feedback)
+
     positive_btn.click(
-        fn=submit_feedback, 
-        inputs=[output_box, gr.Textbox(value="positive", visible=False), has_given_feedback], 
+        fn=submit_feedback,
+        inputs=[output_box, positive_signal, has_given_feedback],
         outputs=[feedback_status, feedback_row, has_given_feedback]
     )
-    
+
     negative_btn.click(
-        fn=submit_feedback, 
-        inputs=[output_box, gr.Textbox(value="negative", visible=False), has_given_feedback], 
+        fn=submit_feedback,
+        inputs=[output_box, negative_signal, has_given_feedback],
         outputs=[feedback_status, feedback_row, has_given_feedback]
     )
 

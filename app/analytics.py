@@ -1,10 +1,16 @@
-import os
 import json
 from datetime import datetime
 from difflib import SequenceMatcher
+from google.cloud import storage
+from io import BytesIO
 
-LOG_DIR = "analytics_logs"
-os.makedirs(LOG_DIR, exist_ok=True)
+# CONFIG
+BUCKET_NAME = "post_generator1"  # <-- replace with your actual GCS bucket name
+LOG_DIR = "analytics_logs"        # folder within the bucket
+MAX_HISTORY = 10
+
+client = storage.Client()
+bucket = client.bucket(BUCKET_NAME)
 
 def log_analytics(event_type: str, metadata: dict, content: str = None):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -16,29 +22,37 @@ def log_analytics(event_type: str, metadata: dict, content: str = None):
     if content:
         entry["content"] = content
 
-    log_file = os.path.join(LOG_DIR, f"{datetime.now().strftime('%Y-%m-%d')}.jsonl")
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    log_filename = f"{LOG_DIR}/{datetime.now().strftime('%Y-%m-%d')}.jsonl"
+    blob = bucket.blob(log_filename)
 
+    try:
+        existing_data = blob.download_as_text()
+    except Exception:
+        existing_data = ""
 
-MAX_HISTORY = 10
+    updated_data = existing_data + json.dumps(entry) + "\n"
+    blob.upload_from_string(updated_data, content_type="application/jsonl")
 
 def get_recent_generated_posts() -> list:
     posts = []
-    for filename in sorted(os.listdir(LOG_DIR), reverse=True):
-        if not filename.endswith(".jsonl"):
+    blobs = list(client.list_blobs(BUCKET_NAME, prefix=LOG_DIR + "/"))
+    blobs = sorted(blobs, key=lambda b: b.name, reverse=True)
+
+    for blob in blobs:
+        if not blob.name.endswith(".jsonl"):
             continue
-        path = os.path.join(LOG_DIR, filename)
-        with open(path, "r", encoding="utf-8") as f:
-            for line in reversed(list(f)):
-                try:
-                    data = json.loads(line.strip())
-                    if data.get("event_type") == "generation" and "content" in data:
-                        posts.append(data["content"])
-                        if len(posts) >= MAX_HISTORY:
-                            return posts
-                except json.JSONDecodeError:
-                    continue
+
+        content = blob.download_as_text()
+        lines = list(reversed(content.strip().splitlines()))
+        for line in lines:
+            try:
+                data = json.loads(line)
+                if data.get("event_type") == "generation" and "content" in data:
+                    posts.append(data["content"])
+                    if len(posts) >= MAX_HISTORY:
+                        return posts
+            except json.JSONDecodeError:
+                continue
     return posts
 
 def is_too_similar(new_post: str, threshold: float = 0.85) -> bool:
