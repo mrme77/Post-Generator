@@ -63,7 +63,7 @@ with gr.Blocks(title="PDF to Social Media Post Generator", css=".blue-button {ba
     gr.Markdown("Upload a PDF document, choose tone and version, and generate a Social Media post.")
     gr.Markdown(
         "⚠️ **Important:** Uploaded PDFs will be scanned for sensitive data (names, emails, phone numbers, etc.) "
-        "before being sent to the LLM model. We do not store any personal information."
+        "before being sent to the LLM model. The app does not store any personal information."
     )
 
     with gr.Row():
