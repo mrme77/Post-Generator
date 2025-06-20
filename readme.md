@@ -2,23 +2,20 @@
 
 ![GitHub](https://img.shields.io/badge/license-MIT-blue)
 
-A Gradio application that transforms PDF documents into professionally crafted social media posts using GenAI, with secure analytics logging to Google Cloud Storage — works seamlessly both locally and on Hugging Face Spaces.
-
----
-
 ## 📝 Overview
 
-This tool allows users to upload a PDF (research paper, article, or report) and automatically generates a LinkedIn-ready post that summarizes the content. The app uses `meta-llama/llama-3.3-8b-instruct:free` via OpenRouter to produce compelling, professional summaries, while securely logging usage events to a Google Cloud bucket.
+This tool allows users to upload a PDF (i.e. research paper, article, or report) and automatically generates a Social Media post that summarizes the content. The app uses `meta-llama/llama-3.3-8b-instruct:free` via OpenRouter to produce compelling, professional summaries, while securely logging usage events to a Google Cloud bucket. It works seamlessly both locally and on Hugging Face Spaces.
+
 
 ---
 
 ## ✨ Features
 
 - 📄 **PDF Text Extraction**: Extracts text from uploaded PDFs using `PyPDF2`
-- 🤖 **AI-Powered Summarization**: Uses GenAI models for post generation
+- 🚨 **PII Checker**: Ensures not PII is sent to the LLM
+- 🤖 **AI-Powered Summarization**: Uses LLM models for post generation
 - ✅ **Relevance Assurance**: Keeps key concepts from the original document
-- 🎯 **Format Optimization**: Produces clean, ready-to-publish LinkedIn text
-- 🏷️ **Hashtag Management**: Automatically adds relevant hashtags
+- 🎯 **Format Optimization**: Produces clean, ready-to-publish SocialMedia text
 - 🌐 **Cloud-Based Logging**: Stores usage logs in a GCS bucket (Vertex AI compatible)
 - 🧑‍💻 **Works Locally and in Hugging Face Spaces**
 
@@ -41,12 +38,20 @@ This tool allows users to upload a PDF (research paper, article, or report) and 
 git clone https://huggingface.co/spaces/your-username/post_generator
 cd post_generator
 
-# 2. Create a virtual environment
-python -m venv venv
-source venv/bin/activate
+# 2. Create a virtual environment with uv package 
+- Install UV if not already installed
+  curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 3. Install dependencies
-pip install -r requirements.txt
+- Create a virtual environment with UV
+  uv venv .venv
+
+- Activate the virtual environment
+  source .venv/bin/activate
+
+- Install required dependencies
+  uv pip install openai gradio python-dotenv PyPDF2 presidio-analyzer spacy
+  
+  python -m spacy download en_core_web_lg
 ```
 
 ---
@@ -66,8 +71,8 @@ GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/your/gcp_key.json
 
 | Key                         | Value                         |
 |----------------------------|-------------------------------|
-| `OPENROUTER_API_KEY`       | Your OpenRouter API key       |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Paste raw JSON from your GCP key |
+| `OPENROUTER_API_KEY`       | OpenRouter API key       |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Paste raw JSON from GCP key |
 
 ---
 
@@ -90,7 +95,7 @@ Just push the code — it auto-deploys!
 2. **Text Extraction**: PDF parsed using `PyPDF2`
 3. **Post Generation**: Text sent to LLM via OpenRouter
 4. **Cloud Logging**: Logs are pushed to your GCS bucket (if credentials exist)
-5. **Display Result**: The LinkedIn post appears, ready to copy
+5. **Display Result**: The Social Media post appears, ready to copy
 
 ---
 
@@ -104,9 +109,11 @@ pdf-to-socialmedia-app/
 │   ├── pdf_processing.py    # PDF extraction
 │   ├── export_handler.py    # Text export logic
 │   └── analytics.py         # Cloud/local logging abstraction
+    └── explore.ipynb        # Jupyter Notebook for quick exploration
 ├── .env                     # (local only) API keys
 ├── requirements.txt         # Python dependencies
-├── README.md                # This file
+├── README.md  
+├── LICENSE                  # It contains the terms of the MIT License
 ├── analytics_logs/          # Local logs (if GCS is not used)
 ```
 
@@ -128,7 +135,7 @@ Edit the `instruction` prompt in `llm_integration.py` to change tone, length, or
 
 ## 🔒 Security Notes
 
-- The app never stores your PDFs or generated text beyond session memory.
+- The app never stores the PDFs uploaded beyond session memory.
 - OpenRouter keys and GCP credentials are stored in `.env` (local) or Hugging Face Secrets (hosted).
 - GCS logs are append-only and used solely for usage analytics.
 
@@ -137,7 +144,7 @@ Edit the `instruction` prompt in `llm_integration.py` to change tone, length, or
 ## 🛠️ Future Features
 
 - 🔐 Authentication (e.g., for private use or teams)
-- 🔄 Direct Social Media Posting (LinkedIn API integration)
+- 🔄 Direct Social Media Posting (API integration)
 - 📑 Support for DOCX, PPTX files
 - 💾 Enhanced cloud storage of generated posts
 
@@ -151,5 +158,5 @@ MIT License — see `LICENSE` file for details.
 
 ## 🤝 Contributing
 
-We welcome PRs, suggestions, and feedback!  
+All PRs, suggestions, and feedback are welcome!  
 Open an issue or fork and submit a pull request.
