@@ -4,7 +4,7 @@
 
 ## 📝 Overview
 
-This tool allows users to upload a PDF (i.e. research paper, article, or report) and automatically generates a Social Media post that summarizes the content. The app uses `meta-llama/llama-3.3-8b-instruct:free` via OpenRouter to produce compelling, professional summaries, while securely logging usage events to a Google Cloud bucket. It works seamlessly both locally and on Hugging Face Spaces.[PostGenerator] (https://huggingface.co/spaces/mrme77/PDF-To-Social-Media-Post-Generator)
+This tool allows users to upload a PDF (i.e. research paper, article, or report) and automatically generates a Social Media post that summarizes the content. The app uses `meta-llama/llama-3.3-8b-instruct:free` via OpenRouter to produce compelling, professional summaries, while securely logging usage events to a Google Cloud bucket. It works seamlessly both locally and on Hugging Face Spaces. [PDF To Social Media Post Generator App](https://huggingface.co/spaces/mrme77/PDF-To-Social-Media-Post-Generator)
 
 
 ---
