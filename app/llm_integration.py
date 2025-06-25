@@ -1,13 +1,13 @@
 import os
 import json
 from dotenv import load_dotenv
-from openai import OpenAI
+import openai
 from presidio_analyzer import AnalyzerEngine
 
 load_dotenv()
 
 INSTRUCTION_TEMPLATE = """
-Generate a compelling LinkedIn post in a {tone} tone based on the PDF content provided, following these guidelines:
+Generate a compelling social media posts in a {tone} tone based on the PDF content provided, following these guidelines:
 
 1. STYLE & TONE:
    - Write in first-person perspective as someone who has personally read and been impacted by the document
@@ -43,7 +43,7 @@ analyzer = AnalyzerEngine()
 
 # Define which PII entities to check for
 PII_ENTITIES_TO_CHECK = [
-    "EMAIL_ADDRESS",
+    #"EMAIL_ADDRESS",
     "PHONE_NUMBER",
     "CREDIT_CARD",
     "US_SSN"
@@ -59,7 +59,6 @@ def contains_pii(text: str) -> bool:
     results = analyzer.analyze(text=text, entities=PII_ENTITIES_TO_CHECK, language='en')
     high_confidence_results = [r for r in results if r.score >= MIN_CONFIDENCE]
     if high_confidence_results:
-        # Debug: print detected PII entities with their type, snippet, and confidence score
         print("Detected PII:", [(r.entity_type, text[r.start:r.end], r.score) for r in high_confidence_results])
         return True
     return False
@@ -69,36 +68,36 @@ def generate_linkedin_post(pdf_content: str, tone: str = "Professional", retry_n
     if not api_key:
         raise ValueError("OPENROUTER_API_KEY environment variable is not set")
 
-    # PII detection before sending content to LLM
+    # Set up OpenAI client (module-level config)
+    openai.api_key = api_key
+    openai.api_base = "https://openrouter.ai/api/v1"
+    
     if contains_pii(pdf_content):
         return (
             "⚠️ The uploaded PDF appears to contain personal or sensitive information. "
             "Please remove such details before generating a post."
         )
 
+    instruction = INSTRUCTION_TEMPLATE.format(tone=tone)
+    temperature = 0.7 + 0.1 * retry_num  # Add variability on retries
+
     try:
-        client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=api_key,
-        )
+        response = openai.ChatCompletion.create(
+        model="mistralai/mistral-small-3.2-24b-instruct:free",
+        messages=[
+        {"role": "system", "content": instruction},
+        {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
+        ],
+        temperature=temperature,
+        max_tokens=2000,
+        top_p=0.85,
+)
 
-        instruction = INSTRUCTION_TEMPLATE.format(tone=tone)
-        temperature = 0.7 + 0.1 * retry_num  # Add variability on retries
 
-        response = client.chat.completions.create(
-            model="meta-llama/llama-3.3-8b-instruct:free",
-            messages=[
-                {"role": "system", "content": instruction},
-                {"role": "user", "content": f"PDF Content:\n{pdf_content}"}
-            ],
-            temperature=temperature,
-            max_tokens=2000,
-            top_p=0.85,
-            stream=False,
-        )
+    
 
-        if response and hasattr(response, "choices") and response.choices:
-            return response.choices[0].message.content.strip()
+        if response and "choices" in response and response["choices"]:
+            return response["choices"][0]["message"]["content"].strip()
         else:
             raise RuntimeError("No content returned by the language model.")
 
