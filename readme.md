@@ -109,7 +109,8 @@ pdf-to-socialmedia-app/
 │   ├── pdf_processing.py    # PDF extraction
 │   ├── export_handler.py    # Text export logic
 │   └── analytics.py         # Cloud/local logging abstraction
-    └── explore.ipynb        # Jupyter Notebook for quick exploration
+│   └── logs.josnl           # Application logs
+│   └── explore.ipynb        # Jupyter Notebook for quick exploration
 ├── .env                     # (local only) API keys
 ├── requirements.txt         # Python dependencies
 ├── README.md  
