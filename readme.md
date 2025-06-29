@@ -35,7 +35,7 @@ This tool allows users to upload a PDF (i.e. research paper, article, or report)
 
 ```bash
 # 1. Clone the repository
-git clone https://huggingface.co/spaces/your-username/post_generator
+git clone https://github.com/mrme77/Post-Generator
 cd post_generator
 
 # 2. Create a virtual environment with uv package 
@@ -61,8 +61,8 @@ cd post_generator
 #### 📌 1. Create a `.env` file:
 
 ```ini
-OPENROUTER_API_KEY=your-openrouter-key
-GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/your/gcp_key.json
+OPENROUTER_API_KEY= openrouter-key
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/gcp_key.json
 ```
 
 > On Hugging Face Spaces, you don’t need the `.env` file — add secrets via **Settings > Secrets**.
