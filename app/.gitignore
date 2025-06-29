@@ -74,6 +74,7 @@ flagged/
 *.pdf
 *.zip
 *.tar.gz
+.jsonl
 
 # Local configuration
 config.local.yaml
