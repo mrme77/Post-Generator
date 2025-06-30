@@ -11,14 +11,14 @@ This tool allows users to upload a PDF (i.e. research paper, article, or report)
 
 ## ✨ Features
 
-📄 PDF Text Extraction: Extracts text from uploaded PDFs using PyPDF2
-🚨 PII Checker: Ensures no PII is sent to the LLM
-🤖 AI-Powered Summarization: Uses LLM models for post generation
-📄 Smart Document Handling: Automatically chunks or summarizes large PDFs to avoid token limits
-✅ Relevance Assurance: Keeps key concepts from the original document
-🎯 Format Optimization: Produces clean, ready-to-publish SocialMedia text
-🌐 Cloud-Based Logging: Stores usage logs in a GCS bucket (Vertex AI compatible)
-🧑‍💻 Works Locally and in Hugging Face Spaces
+- 📄 PDF Text Extraction: Extracts text from uploaded PDFs using PyPDF2
+- 🚨 PII Checker: Ensures no PII is sent to the LLM
+- 🤖 AI-Powered Summarization: Uses LLM models for post generation
+- 📄 Smart Document Handling: Automatically chunks or summarizes large PDFs to avoid token limits
+- ✅ Relevance Assurance: Keeps key concepts from the original document
+- 🎯 Format Optimization: Produces clean, ready-to-publish SocialMedia text
+- 🌐 Cloud-Based Logging: Stores usage logs in a GCS bucket (Vertex AI compatible)
+- 🧑‍💻 Works Locally and in Hugging Face Spaces
 
 ---
 
@@ -92,14 +92,14 @@ Just push the code — it auto-deploys!
 
 ## 💡 How It Works
 
-Upload PDF: User selects a file
-Text Extraction: PDF parsed using PyPDF2
-Content Processing:
+- Upload PDF: User selects a file
+- Text Extraction: PDF parsed using PyPDF2
+- Content Processing:
 For normal-sized PDFs: Uses full text
 For large PDFs: Automatically chunks or summarizes content to fit model context window
-Post Generation: Processed text sent to LLM via OpenRouter
-Cloud Logging: Logs are pushed to your GCS bucket (if credentials exist)
-Display Result: The Social Media post appears, ready to copy
+- Post Generation: Processed text sent to LLM via OpenRouter
+- Cloud Logging: Logs are pushed to your GCS bucket (if credentials exist)
+- Display Result: The Social Media post appears, ready to copy
 
 ---
 
@@ -129,7 +129,7 @@ pdf-to-socialmedia-app/
 ### Change the LLM Model
 Edit `llm_integration.py`:
 ```python
-model = "meta-llama/llama-3.3-8b-instruct:free"
+model = "mistralai/mistral-small-3.2-24b-instruct:free"
 ```
 Explore more models at: [https://openrouter.ai/models](https://openrouter.ai/models)
 
