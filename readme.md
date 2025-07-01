@@ -121,6 +121,7 @@ pdf-to-socialmedia-app/
 ├── .env                     # (local only) API keys
 ├── requirements.txt         # Python dependencies
 ├── README.md  
+├── image.png                # app image
 ├── LICENSE                  # It contains the terms of the MIT License
 ├── analytics_logs/          # Local logs (if GCS is not used)
 ```
